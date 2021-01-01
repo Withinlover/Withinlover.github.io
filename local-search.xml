@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  
+  
+  
+  <entry>
+    <title>RSA 大质数生成</title>
+    <link href="/2021/01/01/RSA%E5%A4%A7%E8%B4%A8%E6%95%B0%E7%94%9F%E6%88%90/"/>
+    <url>/2021/01/01/RSA%E5%A4%A7%E8%B4%A8%E6%95%B0%E7%94%9F%E6%88%90/</url>
+    
+    <content type="html"><![CDATA[<p><strong>基于 Python3.8</strong></p><p>舍友的作业要手撕 RSA，虽然我 RSA 一点都不会但是生成1024位的素数还是挺好玩的。就简单实现了一下</p><p>其实就是暴力枚举，生成一个1024位的整数，然后判断是否为素数，不是的话就加一，如此往复…</p><p>素数的密度大致与 $\ln n$ 成反比，也就是说，随机一个 n bit 的正整数，如果不是素数，则往后取 n 个数字，大概率会碰到一个素数</p><p>判断是否位素数可以用 MillerRabin，然后利用 Python 的高精度写起来会很舒服</p><p>最后生成100个1024位的素数用时 132.7102403s。平均每个 1.3 秒，可以接受</p><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> random <span class="hljs-keyword">import</span> randint<br><span class="hljs-keyword">import</span> time<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">miller_rabin</span>(<span class="hljs-params">p</span>):</span><br>    <span class="hljs-keyword">if</span> p == <span class="hljs-number">1</span>: <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br>    <span class="hljs-keyword">if</span> p == <span class="hljs-number">2</span>: <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br>    <span class="hljs-keyword">if</span> p % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>: <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br>    m, k, = p - <span class="hljs-number">1</span>, <span class="hljs-number">0</span><br>    <span class="hljs-keyword">while</span> m % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>:<br>        m, k = m // <span class="hljs-number">2</span>, k + <span class="hljs-number">1</span><br>    a = randint(<span class="hljs-number">2</span>, p - <span class="hljs-number">1</span>)<br>    x = <span class="hljs-built_in">pow</span>(a, m, p)<br>    <span class="hljs-keyword">if</span> x == <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> x == p - <span class="hljs-number">1</span>: <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br>    <span class="hljs-keyword">while</span> k &gt; <span class="hljs-number">1</span>:<br>        x = <span class="hljs-built_in">pow</span>(x, <span class="hljs-number">2</span>, p)<br>        <span class="hljs-keyword">if</span> x == <span class="hljs-number">1</span>: <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br>        <span class="hljs-keyword">if</span> x == p - <span class="hljs-number">1</span>: <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br>        k = k - <span class="hljs-number">1</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">is_prime</span>(<span class="hljs-params">p, r = <span class="hljs-number">40</span></span>):</span><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(r):<br>        <span class="hljs-keyword">if</span> miller_rabin(p) == <span class="hljs-literal">False</span>:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    T = time.perf_counter()<br>    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">100</span>):<br>        index = <span class="hljs-number">1024</span><br>        print(index, <span class="hljs-string">&quot;位质数: &quot;</span>, end=<span class="hljs-string">&quot;&quot;</span>)<br>        num = <span class="hljs-number">0</span><br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(index):<br>            num = num * <span class="hljs-number">2</span> + randint(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>)<br>        <span class="hljs-keyword">while</span> is_prime(num) == <span class="hljs-literal">False</span>:<br>            num = num + <span class="hljs-number">1</span><br>        print(num)<br>        print(<span class="hljs-string">&quot;----------------------------&quot;</span>)<br>    print(<span class="hljs-string">&quot;用时：&quot;</span>, time.perf_counter() - T)<br></code></pre></div></td></tr></table></figure>]]></content>
+    
+    
+    <categories>
+      
+      <category>Python</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Python</tag>
+      
+      <tag>RSA</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  
+</search>
