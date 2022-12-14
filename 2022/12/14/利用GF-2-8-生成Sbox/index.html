@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="baidu-site-verification" content="093lY4ziMu" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="「永远怀着一颗虔诚的心」">
+    <meta name="keyword"  content="blog">
+    <link rel="shortcut icon" href="/img/avatar.jpg">
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <!--<link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>-->
+    <title>
+        
+          利用GF(2^8)生成Sbox - Withinlover&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="https://dusign.net/2022/12/14/利用GF-2-8-生成Sbox/">
+
+    <!-- Bootstrap Core CSS -->
+    
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+
+
+    <!-- Custom CSS --> 
+    
+        
+<link rel="stylesheet" href="/css/dusign-light.css">
+
+        
+<link rel="stylesheet" href="/css/dusign-common-light.css">
+
+        
+<link rel="stylesheet" href="/css/font-awesome.css">
+
+        
+<link rel="stylesheet" href="/css/toc.css">
+
+        <!-- background effects end -->
+    
+    
+    <!-- Pygments Highlight CSS -->
+    
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+    
+<link rel="stylesheet" href="/css/widget.css">
+
+
+    
+<link rel="stylesheet" href="/css/rocket.css">
+
+
+    
+<link rel="stylesheet" href="/css/signature.css">
+
+
+    
+<link rel="stylesheet" href="/css/fonts.googleapis.css">
+
+
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+    <!-- photography -->
+    
+<link rel="stylesheet" href="/css/photography.css">
+
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- background effects start -->
+    
+    <!-- background effects end -->
+
+	<!-- Modified by Yu-Hsuan Yen -->
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        
+            
+                background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../../../../img/default.jpg')
+                /*post*/
+            
+        
+    }
+    
+</style>
+
+<header class="intro-header" >
+    <!-- Signature -->
+    <div id="signature">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-heading">
+                        <div class="tags">
+                            
+                              <a class="tag" href="/tags/#SM4" title="SM4">SM4</a>
+                            
+                              <a class="tag" href="/tags/#Sbox" title="Sbox">Sbox</a>
+                            
+                        </div>
+                        <h1>利用GF(2^8)生成Sbox</h1>
+                        <h2 class="subheading"></h2>
+                        <span class="meta">
+                            Posted by Withinlover on
+                            2022-12-14
+                        </span>
+
+                        
+                            <div class="blank_box"></div>
+                            <span class="meta">
+                                Words <span class="post-count">1,077</span> and
+                                Reading Time <span class="post-count">5</span> Minutes
+                            </span>
+                            <div class="blank_box"></div>
+                            <!-- 不蒜子统计 start -->
+                            <span class="meta">
+                                Viewed <span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span> Times
+                            </span>
+                            <!-- 不蒜子统计 end -->
+                        
+
+                    </div>
+                
+
+                </div>
+            </div>
+        </div>      
+    </div>
+
+    
+    <div class="waveWrapper">
+        <div class="wave wave_before" style="background-image: url('/img/wave-light.png')"></div>
+        <div class="wave wave_after" style="background-image: url('/img/wave-light.png')"></div>
+    </div>
+    
+</header>
+
+	
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Withinlover-Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archive/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/categories/">Categories</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    <!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="Sbox-生成原理"><a href="#Sbox-生成原理" class="headerlink" title="Sbox 生成原理"></a>Sbox 生成原理</h1><p>Aes 算法的 S 盒是定义在 $GF(2^8)$ 中，使用的不可约多项式为 $x^8+x^4+x^3+x+1$，生成方式为 $S(x)=Ax^{-1}+c$</p>
+<script type="math/tex; mode=display">
+A=\left(
+\begin{array}{l}
+1 & 1 & 1 & 1 & 1 & 0 & 0 & 0 \\
+0 & 1 & 1 & 1 & 1 & 1 & 0 & 0 \\
+0 & 0 & 1 & 1 & 1 & 1 & 1 & 0 \\
+0 & 0 & 0 & 1 & 1 & 1 & 1 & 1 \\
+1 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+1 & 1 & 0 & 0 & 0 & 1 & 1 & 1 \\
+1 & 1 & 1 & 0 & 0 & 0 & 1 & 1 \\
+1 & 1 & 1 & 1 & 0 & 0 & 0 & 1 \\
+\end{array}
+\right)
+
+c=\left(
+\begin{array}{l}
+0 \\
+1 \\
+1 \\
+0 \\
+0 \\
+0 \\
+1 \\
+1 \\
+\end{array}
+\right)</script><p>在 SM4 的官方文档中，仅给出了 Sbox 盒的定义， 并未给出生成方法。进行学术搜索后，在论文 <a href="https://www.researchgate.net/profile/Jintai-Ding/publication/220798661_Analysis_of_the_SMS4_block_cipher/links/5ce4735a92851c4eabb4e554/Analysis-of-the-SMS4-block-cipher.pdf" target="_blank" rel="noopener">Analysis of the SMS4 Block Cipher</a> 中提到，SM4 算法的 S 盒同样定义在 $GF(2^8)$ 中。使用的不可约多项式为 $x^8+x^7+x^6+x^5+x^4+x^2+1$，生成方式为 $S(x)=A(Ax+c)^{-1}+c$</p>
+<script type="math/tex; mode=display">
+A=\left(
+\begin{array}{l}
+1 & 1 & 0 & 1 & 0 & 0 & 1 & 1 \\
+1 & 1 & 1 & 0 & 1 & 0 & 0 & 1 \\
+1 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+0 & 1 & 1 & 1 & 1 & 0 & 1 & 0 \\
+0 & 0 & 1 & 1 & 1 & 1 & 0 & 1 \\
+1 & 0 & 0 & 1 & 1 & 1 & 1 & 0 \\
+0 & 1 & 0 & 0 & 1 & 1 & 1 & 1 \\
+1 & 0 & 1 & 0 & 0 & 1 & 1 & 1 \\
+\end{array}
+\right)
+
+c=\left(
+\begin{array}{l}
+1 \\
+1 \\
+0 \\
+1 \\
+0 \\
+0 \\
+1 \\
+1 \\
+\end{array}
+\right)</script><h1 id="SM4-SBox-生成方法"><a href="#SM4-SBox-生成方法" class="headerlink" title="SM4-SBox 生成方法"></a>SM4-SBox 生成方法</h1><p>伽罗瓦域 $GF(2^8)$ 上的四则运算是基于多项式进行计算的。</p>
+<ul>
+<li>加法：多项式对应项系数相加，由于每一项的系数都是在 $GF(2)$ 上进行运算，结果要对 2 取模。表现出来就是异或运算。</li>
+<li>减法：在 $GF(2^8)$ 中，加减法最终都是异或运算。</li>
+<li>乘法：选取不可约多项式 $x^8+x^7+x^6+x^5+x^4+x^2+1$，当出现大于 $x^8$ 的项时，将 $x^8$ 替换为 $x^7+x^6+x^5+x^4+x^2+1$ </li>
+<li>除法：除以一个多项式等价于乘它的逆元。</li>
+</ul>
+<p>在将上述 Sbox 的计算公式翻译为代码时，加减法可以直接使用异或运算完成，乘除法的计算过程相对麻烦，但由于 $GF(2^8)$ 中除去 0 仅有 255 个多项式，可以打表实现：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">BIT gen = <span class="number">0b11110101</span>;</span><br><span class="line">BIT table[<span class="number">256</span>], arc_table[<span class="number">256</span>], inv_table[<span class="number">256</span>];</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">prepare</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 使用生成元 g = x 遍历所有元素</span></span><br><span class="line">    <span class="comment">// 任意多项式 A, B 都可以写为 g^a, g^b 的形式</span></span><br><span class="line">    table[<span class="number">0</span>] = <span class="number">1</span>; arc_table[<span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>;i &lt; <span class="number">255</span>; ++i) &#123;</span><br><span class="line">        <span class="keyword">if</span> (table[i - <span class="number">1</span>] &amp; <span class="number">0x80</span>) </span><br><span class="line">            table[i] = (table[i - <span class="number">1</span>] &lt;&lt; <span class="number">1</span>) ^ gen;</span><br><span class="line">        <span class="keyword">else</span> </span><br><span class="line">            table[i] = table[i - <span class="number">1</span>] &lt;&lt; <span class="number">1</span>;</span><br><span class="line">        arc_table[table[i]] = i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>;i &lt; <span class="number">256</span>; ++i) &#123;</span><br><span class="line">        <span class="comment">// 首先从 g^a -&gt; a</span></span><br><span class="line">        <span class="comment">// 利用 A*B = g^a * g^b = g^(a + b) = 1，定位 B</span></span><br><span class="line">        BIT k = arc_table[i]; </span><br><span class="line">        inv_table[i] = table[(<span class="number">255</span> - k) % <span class="number">255</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>利用上述 3 个表，我们可以快速实现 $GF(2^8)$ 上的乘除法运算。</p>
+<p>之后按照定义将 Sbox 的生成函数写出：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">BIT A[] = &#123;<span class="number">0b11100101</span>, <span class="number">0b11110010</span>, <span class="number">0b01111001</span>, <span class="number">0b10111100</span>, <span class="number">0b01011110</span>, <span class="number">0b00101111</span>, <span class="number">0b10010111</span>, <span class="number">0b11001011</span>&#125;;</span><br><span class="line"><span class="function">BIT <span class="title">Ax</span><span class="params">(BIT x)</span> </span>&#123;</span><br><span class="line">    BIT y = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; <span class="number">8</span>; ++i) </span><br><span class="line">        <span class="keyword">if</span> (x &amp; (<span class="number">1</span> &lt;&lt; (<span class="number">7</span> - i)))</span><br><span class="line">            y ^= A[i]; <span class="comment">// y = Ax</span></span><br><span class="line">    <span class="keyword">return</span> y ^ <span class="number">0xd3</span>; <span class="comment">// return Ax + c</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function">BIT <span class="title">sbox_gen</span><span class="params">(BIT x)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// res = A(Ax + c)^-1 + c </span></span><br><span class="line">    <span class="keyword">return</span> Ax(inv_table[Ax(x)]); </span><br><span class="line">&#125; </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    prepare();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>;i &lt;= <span class="number">256</span>; ++i)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"0x%02x%c"</span>, sbox_gen(i - <span class="number">1</span>), <span class="string">",\n"</span>[i % <span class="number">16</span> == <span class="number">0</span>]);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">0xd6,0x90,0xe9,0xfe,0xcc,0xe1,0x3d,0xb7,0x16,0xb6,0x14,0xc2,0x28,0xfb,0x2c,0x05</span><br><span class="line">0x2b,0x67,0x9a,0x76,0x2a,0xbe,0x04,0xc3,0xaa,0x44,0x13,0x26,0x49,0x86,0x06,0x99</span><br><span class="line">0x9c,0x42,0x50,0xf4,0x91,0xef,0x98,0x7a,0x33,0x54,0x0b,0x43,0xed,0xcf,0xac,0x62</span><br><span class="line">0xe4,0xb3,0x1c,0xa9,0xc9,0x08,0xe8,0x95,0x80,0xdf,0x94,0xfa,0x75,0x8f,0x3f,0xa6</span><br><span class="line">0x47,0x07,0xa7,0xfc,0xf3,0x73,0x17,0xba,0x83,0x59,0x3c,0x19,0xe6,0x85,0x4f,0xa8</span><br><span class="line">0x68,0x6b,0x81,0xb2,0x71,0x64,0xda,0x8b,0xf8,0xeb,0x0f,0x4b,0x70,0x56,0x9d,0x35</span><br><span class="line">0x1e,0x24,0x0e,0x5e,0x63,0x58,0xd1,0xa2,0x25,0x22,0x7c,0x3b,0x01,0x21,0x78,0x87</span><br><span class="line">0xd4,0x00,0x46,0x57,0x9f,0xd3,0x27,0x52,0x4c,0x36,0x02,0xe7,0xa0,0xc4,0xc8,0x9e</span><br><span class="line">0xea,0xbf,0x8a,0xd2,0x40,0xc7,0x38,0xb5,0xa3,0xf7,0xf2,0xce,0xf9,0x61,0x15,0xa1</span><br><span class="line">0xe0,0xae,0x5d,0xa4,0x9b,0x34,0x1a,0x55,0xad,0x93,0x32,0x30,0xf5,0x8c,0xb1,0xe3</span><br><span class="line">0x1d,0xf6,0xe2,0x2e,0x82,0x66,0xca,0x60,0xc0,0x29,0x23,0xab,0x0d,0x53,0x4e,0x6f</span><br><span class="line">0xd5,0xdb,0x37,0x45,0xde,0xfd,0x8e,0x2f,0x03,0xff,0x6a,0x72,0x6d,0x6c,0x5b,0x51</span><br><span class="line">0x8d,0x1b,0xaf,0x92,0xbb,0xdd,0xbc,0x7f,0x11,0xd9,0x5c,0x41,0x1f,0x10,0x5a,0xd8</span><br><span class="line">0x0a,0xc1,0x31,0x88,0xa5,0xcd,0x7b,0xbd,0x2d,0x74,0xd0,0x12,0xb8,0xe5,0xb4,0xb0</span><br><span class="line">0x89,0x69,0x97,0x4a,0x0c,0x96,0x77,0x7e,0x65,0xb9,0xf1,0x09,0xc5,0x6e,0xc6,0x84</span><br><span class="line">0x18,0xf0,0x7d,0xec,0x3a,0xdc,0x4d,0x20,0x79,0xee,0x5f,0x3e,0xd7,0xcb,0x39,0x48</span><br></pre></td></tr></table></figure>
+<p>其实这样的方案在硬件实现上并无优势，朴素的实现需要将 Sbox 全部存储下来（利用 ROM），需要存储 256 份的信息。利用 $GF(2^8)$ 进行计算时，也同样需要预先打出逆元的表。</p>
+<p>当然，这个方法也不是一无是处，如果能找到 $GF(2^8)\to GF((2^4)^2)$ 的对应方案，便可以不利用 ROM 使用纯粹的组合逻辑实现 SM4-Sbox。</p>
+<p>这是作者第一次接触到这部分知识点，难免有疏漏或错误的地方，如果有发现还请指出。</p>
+
+                
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    
+                    
+                    <li class="next">
+                        <a href="/2022/12/04/SM4-CPP/" data-toggle="tooltip" data-placement="top" title="SM4 密码算法学习">Next Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                <!-- tip start -->
+                
+
+                
+                <!-- tip end -->
+
+                <!-- Music start-->
+                
+                <!-- Music end -->
+
+                <!-- Sharing -->
+                
+                <!-- Sharing -->
+
+                <!-- gitment start -->
+                
+                <!-- gitment end -->
+
+                <!-- 来必力City版安装代码 -->
+                
+                <!-- City版安装代码已完成 -->
+
+                <!-- disqus comment start -->
+                
+                <!-- disqus comment end -->
+            </div>
+            
+            <!-- Tabe of Content -->
+            <!-- Table of Contents -->
+
+    
+      
+        <aside id="sidebar">
+          <div id="toc" class="toc-article">
+          <strong class="toc-title">Contents</strong>
+          
+            
+              <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Sbox-生成原理"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">Sbox 生成原理</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#SM4-SBox-生成方法"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">SM4-SBox 生成方法</span></a></li></ol>
+            
+          
+          </div>
+        </aside>
+      
+    
+
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'left',
+          icon: 'ℬ'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+
+
+<style  type="text/css">
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/withinlover">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/hao-ze-yu-9">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">知</i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Withinlover 2022 
+                    <br>
+                    Powered by 
+                    <a href="https://github.com/dusign/hexo-theme-snail" target="_blank" rel="noopener">
+                        <i>hexo-theme-snail</i>
+                    </a> | 
+                    <iframe name="star" style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0"
+                        width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=dusign&repo=hexo-theme-snail&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</footer>
+
+<!-- jQuery -->
+
+<script src="/js/jquery.min.js"></script>
+
+
+<!-- Bootstrap Core JavaScript -->
+
+<script src="/js/bootstrap.min.js"></script>
+
+
+<!-- Custom Theme JavaScript -->
+
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- Search -->
+
+<script src="/js/search.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("https://dusign.net/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-XXXXXXXX-X';
+    var _gaDomain = 'yoursite';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- Search -->
+
+    <script type="text/javascript">      
+        var search_path = "search.xml";
+        if (search_path.length == 0) {
+            search_path = "search.xml";
+        }
+    var path = "/" + search_path;
+    searchFunc(path, 'local-search-input', 'local-search-result');
+    </script>
+
+
+<!-- busuanzi -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+	<a id="rocket" href="#top" class=""></a>
+	<script type="text/javascript" src="/js/totop.js?v=1.0.0" async=""></script>
+    <script type="text/javascript" src="/js/toc.js?v=1.0.0" async=""></script>
+
+    
+        <!-- background effects line -->
+        
+
+        
+            <script type="text/javascript" src="/js/mouse-click.js" content='[&#34;🌱&#34;,&#34;just do it&#34;,&#34;🍀&#34;]' color='[&#34;rgb(121,93,179)&#34; ,&#34;rgb(76,180,231)&#34; ,&#34;rgb(184,90,154)&#34;]'></script>
+        
+
+        <!-- background effects end -->
+    
+
+    <!--<script size="50" alpha='0.3' zIndex="-999" src="/js/ribbonStatic.js"></script>-->
+    
+        <script src="/js/ribbonDynamic.js"></script>
+    
+</body>
+
+</html>
